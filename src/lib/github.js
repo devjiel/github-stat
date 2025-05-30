@@ -1,11 +1,13 @@
 import { Octokit } from '@octokit/rest';
 
-const octokit = new Octokit({
-  auth: process.env.GITHUB_TOKEN,
-});
-
-export async function getUserCommitCount(username) {
+export async function getUserCommitCount(username, accessToken) {
   try {
+
+    const octokit = new Octokit({
+      auth: accessToken,
+    });
+
+
     const { data: repos } = await octokit.repos.listForUser({
       username,
       per_page: 100,
@@ -34,6 +36,6 @@ export async function getUserCommitCount(username) {
       publicRepos: repos.length,
     };
   } catch (error) {
-    throw new Error(`Erreur lors de la récupération des stats: ${error.message}`);
+    throw new Error(`Error while fetching stats: ${error.message}`);
   }
 }
