@@ -4,6 +4,7 @@ import { Suspense } from 'react';
 import GitHubStats from '../components/GitHubStats';
 import { signIn, signOut, useSession } from 'next-auth/react';
 import { LogOut } from 'lucide-react';
+import { Card } from '@/components/ui/card';
 
 export default function CommitsPage() {
   const { data: session, status } = useSession();
@@ -41,11 +42,19 @@ export default function CommitsPage() {
   }
 
   return (
-    <button
-      onClick={() => signIn('github')}
-      className="flex items-center gap-2 bg-github-900 hover:bg-github-800 text-white px-6 py-3 bg-black rounded-lg transition-colors font-medium"
-    >
-      Se connecter avec GitHub
-    </button>
+    <div className="flex items-center gap-4">
+      <div className="min-h-screen w-full bg-gradient-to-br from-slate-900 to-slate-800 flex flex-col items-center justify-center">
+        <div className="max-w-md mx-auto p-6">
+          <Card className="p-6">
+            <button
+              onClick={() => signIn('github')}
+              className="flex items-center gap-2 bg-github-900 hover:bg-github-800 text-white px-6 py-3 bg-black rounded-lg transition-colors font-medium"
+            >
+              Se connecter avec GitHub
+            </button>
+          </Card>
+        </div>
+      </div>
+    </div>
   );
 }

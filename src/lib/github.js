@@ -24,7 +24,7 @@ export async function getUserCommitCount(accessToken, username, period) {
           author: username,
           since: getPeriod(period),
           until: new Date().toISOString(),
-          per_page: 100,
+          per_page: 100, // TODO: add pagination
         });
         totalCommits += commits.length;
       } catch (error) {
