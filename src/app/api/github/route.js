@@ -8,6 +8,7 @@ export async function GET(request) {
 
   const { searchParams } = new URL(request.url);
   const username = searchParams.get('username');
+  const period = searchParams.get('period');
 
   if (!session?.accessToken) {
     return NextResponse.json(
@@ -23,8 +24,15 @@ export async function GET(request) {
     );
   }
 
+  if (!period) {
+    return NextResponse.json(
+      { error: 'Period required' },
+      { status: 400 }
+    );
+  }
+
   try {
-    const stats = await getUserCommitCount(username, session.accessToken);
+    const stats = await getUserCommitCount(session.accessToken, username, period);
     return NextResponse.json(stats);
   } catch (error) {
     return NextResponse.json(

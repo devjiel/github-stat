@@ -4,9 +4,11 @@ import { useState } from 'react';
 import { Card } from './ui/card';
 import { Button } from './ui/button';
 import { GithubStats } from '../types/github';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 
 export default function GitHubStats({ username: initialUsername }: { username: string }) {
   const [stats, setStats] = useState<GithubStats | null>(null);
+  const [period, setPeriod] = useState('week');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -15,7 +17,7 @@ export default function GitHubStats({ username: initialUsername }: { username: s
     setError(null);
 
     try {
-      const response = await fetch(`/api/github?username=${username}`);
+      const response = await fetch(`/api/github?username=${username}&period=${period}`);
       const data = await response.json();
 
       if (!response.ok) {
@@ -34,6 +36,18 @@ export default function GitHubStats({ username: initialUsername }: { username: s
     <div className="max-w-md mx-auto p-6">
       <Card className="p-6">
         <h2 className="text-2xl font-bold mb-4">GitHub Stats</h2>
+
+        <Select defaultValue="week" onValueChange={(value) => setPeriod(value)}>
+          <SelectTrigger>
+            <SelectValue defaultValue="week" placeholder="Select a period" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="today">Today</SelectItem>
+            <SelectItem value="week">Week</SelectItem>
+            <SelectItem value="month">Month</SelectItem>
+            <SelectItem value="year">Year</SelectItem>
+          </SelectContent>
+        </Select>
         
         {initialUsername && (
           <Button 

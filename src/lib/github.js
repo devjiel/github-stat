@@ -1,6 +1,6 @@
 import { Octokit } from '@octokit/rest';
 
-export async function getUserCommitCount(username, accessToken) {
+export async function getUserCommitCount(accessToken, username, period) {
   try {
 
     const octokit = new Octokit({
@@ -22,6 +22,8 @@ export async function getUserCommitCount(username, accessToken) {
           owner: repo.owner.login,
           repo: repo.name,
           author: username,
+          since: getPeriod(period),
+          until: new Date().toISOString(),
           per_page: 100,
         });
         totalCommits += commits.length;
@@ -37,5 +39,20 @@ export async function getUserCommitCount(username, accessToken) {
     };
   } catch (error) {
     throw new Error(`Error while fetching stats: ${error.message}`);
+  }
+}
+
+function getPeriod(period) {
+  switch (period) {
+    case 'today':
+      return new Date().toISOString();
+    case 'week':
+      return new Date(new Date().setDate(new Date().getDate() - 7)).toISOString();
+    case 'month':
+      return new Date(new Date().setMonth(new Date().getMonth() - 1)).toISOString();
+    case 'year':
+      return new Date(new Date().setFullYear(new Date().getFullYear() - 1)).toISOString();
+    default:
+      return new Date().toISOString();
   }
 }
