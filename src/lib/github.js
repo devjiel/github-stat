@@ -44,11 +44,13 @@ export async function getUserStats(accessToken, username, period) {
     }
 
     let sortedLanguages = Object.fromEntries(Object.entries(languages).sort((a, b) => b[1] - a[1]));
+    let totalBytes = Object.values(sortedLanguages).reduce((acc, curr) => acc + curr, 0);
+    let languagesPercentage = Object.fromEntries(Object.entries(sortedLanguages).map(([language, bytes]) => [language, ((bytes / totalBytes) * 100).toFixed(2)]));
 
     return {
       username,
       totalCommits,
-      languages: sortedLanguages,
+      languages: languagesPercentage,
       publicRepos: repos.length,
     };
   } catch (error) {

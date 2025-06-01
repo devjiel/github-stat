@@ -5,6 +5,7 @@ import { Card } from './ui/card';
 import { Button } from './ui/button';
 import { GithubStats } from '../types/github';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { ResponsivePie } from '@nivo/pie';
 
 export default function GitHubStats({ username: initialUsername }: { username: string }) {
   const [stats, setStats] = useState<GithubStats | null>(null);
@@ -86,14 +87,16 @@ export default function GitHubStats({ username: initialUsername }: { username: s
                 <div className="text-sm text-green-800">Repos Publics</div>
               </div>
             </div>
-            <ul>
-              {Object.entries(stats.languages).slice(0, 10).map(([language, bytes]) => (
-                <li key={language}>
-                  <div className="text-2xl font-bold text-gray-600">{language}</div>
-                  <div className="text-sm text-gray-800">{bytes}</div>
-                </li>
-              ))}
-            </ul>
+            
+            <div style={{ height: 300, width: '80%', margin: '0 auto' }}>
+              <ResponsivePie
+                data={Object.entries(stats.languages).slice(0, 5).map(([language, bytes]) => ({
+                  id: language,
+                  label: language,
+                  value: bytes,
+                }))}
+              />
+            </div>
           </div>
         )}
       </Card>
