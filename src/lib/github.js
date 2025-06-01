@@ -14,33 +14,39 @@ export async function getUserStats(accessToken, username, period) {
       sort: 'updated',
     });
 
+    const results = await Promise.all(
+      repos.map(async (repo) => {
+        try {
+          const commitsPromise = octokit.repos.listCommits({
+            owner: repo.owner.login,
+            repo: repo.name,
+            author: username,
+            since: getPeriod(period),
+            until: new Date().toISOString(),
+            per_page: 100,
+          });
+
+          const languagesPromise = octokit.repos.listLanguages({
+            owner: repo.owner.login,
+            repo: repo.name,
+          });
+
+          const [{ data: commits }, { data: repoLanguages }] = await Promise.all([commitsPromise, languagesPromise]);
+
+          return { commits, repoLanguages };
+        } catch (error) {
+          console.warn(`Cannot access commits of ${repo.name}`);
+          return { commits: [], repoLanguages: {} };
+        }
+      })
+    );
+
     let totalCommits = 0;
     let languages = {};
 
-    for (const repo of repos) {
-      try {
-        const { data: commits } = await octokit.repos.listCommits({
-          owner: repo.owner.login,
-          repo: repo.name,
-          author: username,
-          since: getPeriod(period),
-          until: new Date().toISOString(),
-          per_page: 100, // TODO: add pagination
-        });
-
-        const { data: repoLanguages } = await octokit.repos.listLanguages({
-          owner: repo.owner.login,
-          repo: repo.name,
-          since: getPeriod(period),
-          until: new Date().toISOString(),
-          per_page: 100, // TODO: add pagination
-        });
-
-        totalCommits += commits.length;
-        languages = { ...languages, ...repoLanguages };
-      } catch (error) {
-        console.warn(`Cannot access commits of ${repo.name}`);
-      }
+    for (const { commits, repoLanguages } of results) {
+      totalCommits += commits.length;
+      languages = { ...languages, ...repoLanguages };
     }
 
     let sortedLanguages = Object.fromEntries(Object.entries(languages).sort((a, b) => b[1] - a[1]));
