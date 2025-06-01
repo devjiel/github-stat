@@ -86,6 +86,14 @@ export default function GitHubStats({ username: initialUsername }: { username: s
                 <div className="text-sm text-green-800">Repos Publics</div>
               </div>
             </div>
+            <ul>
+              {Object.entries(stats.languages).slice(0, 10).map(([language, bytes]) => (
+                <li key={language}>
+                  <div className="text-2xl font-bold text-gray-600">{language}</div>
+                  <div className="text-sm text-gray-800">{bytes}</div>
+                </li>
+              ))}
+            </ul>
           </div>
         )}
       </Card>

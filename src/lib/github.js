@@ -1,6 +1,6 @@
 import { Octokit } from '@octokit/rest';
 
-export async function getUserCommitCount(accessToken, username, period) {
+export async function getUserStats(accessToken, username, period) {
   try {
 
     const octokit = new Octokit({
@@ -15,6 +15,7 @@ export async function getUserCommitCount(accessToken, username, period) {
     });
 
     let totalCommits = 0;
+    let languages = {};
 
     for (const repo of repos) {
       try {
@@ -26,15 +27,28 @@ export async function getUserCommitCount(accessToken, username, period) {
           until: new Date().toISOString(),
           per_page: 100, // TODO: add pagination
         });
+
+        const { data: repoLanguages } = await octokit.repos.listLanguages({
+          owner: repo.owner.login,
+          repo: repo.name,
+          since: getPeriod(period),
+          until: new Date().toISOString(),
+          per_page: 100, // TODO: add pagination
+        });
+
         totalCommits += commits.length;
+        languages = { ...languages, ...repoLanguages };
       } catch (error) {
         console.warn(`Cannot access commits of ${repo.name}`);
       }
     }
 
+    let sortedLanguages = Object.fromEntries(Object.entries(languages).sort((a, b) => b[1] - a[1]));
+
     return {
       username,
       totalCommits,
+      languages: sortedLanguages,
       publicRepos: repos.length,
     };
   } catch (error) {

@@ -1,4 +1,4 @@
-import { getUserCommitCount } from '@/lib/github';
+import { getUserStats } from '@/lib/github';
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
@@ -32,7 +32,7 @@ export async function GET(request) {
   }
 
   try {
-    const stats = await getUserCommitCount(session.accessToken, username, period);
+    const stats = await getUserStats(session.accessToken, username, period);
     return NextResponse.json(stats);
   } catch (error) {
     return NextResponse.json(
